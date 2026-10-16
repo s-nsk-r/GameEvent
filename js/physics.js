@@ -60,11 +60,11 @@ class Player {
 
   respawn() {
     if (this.respawnBeacon) {
-      this.x = this.respawnBeacon.x;
-      this.y = this.respawnBeacon.y;
+      this.x = this.respawnBeacon.x - this.w / 2;
+      this.y = this.respawnBeacon.y - this.h - 8;
     } else {
       this.x = 240;
-      this.y = 420;
+      this.y = 410;
     }
     this.vx = 0;
     this.vy = 0;
@@ -102,8 +102,8 @@ class Player {
 
   isTileSolid(tile) {
     if (tile === 1) return true; // Universal stone/wood
-    if (this.dimension === 'SOLAR' && tile === 2) return true;   // Solar Gold solid
-    if (this.dimension === 'CRIMSON' && tile === 3) return true; // Crimson Obsidian solid
+    if (this.dimension === 'SOLAR' && (tile === 2 || tile === 5)) return true;   // Solar Gold solid / Spring pad
+    if (this.dimension === 'CRIMSON' && (tile === 3 || tile === 6)) return true; // Crimson Obsidian solid / Spring pad
     // Inactive dimension platforms (tile 2 in Crimson or tile 3 in Solar) are permeable ghost previews!
     return false;
   }
@@ -355,7 +355,32 @@ class Player {
         this.vy = 0;
         this.grounded = true;
 
-        if (!wasGrounded) {
+        // Check if landing on an active kinetic spring (tile 5 in SOLAR or tile 6 in CRIMSON)
+        const footRow = Math.floor((this.y + this.h + 2) / world.tileSize);
+        const leftCol = Math.floor(this.x / world.tileSize);
+        const rightCol = Math.floor((this.x + this.w - 0.01) / world.tileSize);
+        let hitSpring = false;
+        for (let c = leftCol; c <= rightCol; c++) {
+          const t = world.getTile(c, footRow);
+          if ((this.dimension === 'SOLAR' && t === 5) || (this.dimension === 'CRIMSON' && t === 6)) {
+            hitSpring = true;
+            break;
+          }
+        }
+
+        if (hitSpring) {
+          this.vy = -7.2; // Massive kinetic launch!
+          this.grounded = false;
+          this.jumpsLeft = 2;
+          this.scaleX = 0.62;
+          this.scaleY = 1.48;
+          if (window.soundEngine) window.soundEngine.playSpring();
+          const sColor = (this.dimension === 'SOLAR') ? '#ffb300' : '#ff1e42';
+          if (window.particleSystem) {
+            window.particleSystem.addShockwave(this.x + this.w / 2, this.y + this.h, sColor);
+            window.particleSystem.emit(this.x + this.w / 2, this.y + this.h, sColor, 22, 4.0, 30);
+          }
+        } else if (!wasGrounded) {
           this.scaleX = 1.35;
           this.scaleY = 0.7;
           const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#ff1e42';
@@ -375,13 +400,15 @@ class Player {
     this.checkLanterns(world);
 
     // 11. Forgiving Hazard Check (Rule 3)
-    if (this.checkHazardIntersection(world)) {
-      if (this.hazardWarningTimer <= 0 && this.invulnerableTimer <= 0) {
-        this.triggerHazardWarning();
-      } else if (this.hazardWarningTimer > 0 && this.invulnerableTimer <= 0) {
-        this.kill();
-        return false;
-      }
+    // First contact: bounce + flashing warning for ~1.1s (Rule 3 telegraph).
+    // When warning timer expires, the player dies.
+    if (this.checkHazardIntersection(world) && this.invulnerableTimer <= 0) {
+      this.triggerHazardWarning();
+    }
+    if (this.hazardWarningTimer === 1) {
+      // Warning just expired — deal the kill
+      this.kill();
+      return false;
     }
 
     // 12. Squash & Stretch recovery (Ori springiness)

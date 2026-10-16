@@ -36,6 +36,13 @@ class Game {
     // Rule 2: Ignore Z for the first 1.0 second of game-over screen
     this.gameOverTimer = 0;
 
+    // Dimension shift flash (visual polish)
+    this.shiftFlash = 0;          // Frames remaining for flash overlay
+    this.shiftFlashColor = '#ff1e42'; // Color of the flash
+
+    // Whisper proximity flag (updated each frame)
+    this.nearWhisper = null;
+
     // Animation Loop
     requestAnimationFrame((t) => this.loop(t));
   }
@@ -50,6 +57,8 @@ class Game {
     this.camera.snapTo(this.player.x, this.player.y);
     this.state = 'PLAYING';
     this.startTime = performance.now();
+    this.shiftFlash = 0;
+    this.nearWhisper = null;
   }
 
   openWhisper(whisper) {
@@ -113,10 +122,12 @@ class Game {
       }
     }
 
-    // 4. Memory Whispers (Activated with Down Arrow)
+    // 4. Memory Whispers (Activated with Down Arrow) — track proximity for HUD hint
+    this.nearWhisper = null;
     for (let whisper of this.world.whispers) {
       const dist = Math.hypot(px - whisper.x, py - whisper.y);
-      if (dist < 32) {
+      if (dist < 52) {
+        this.nearWhisper = whisper;
         if (window.inputController.justPressed.down) {
           this.openWhisper(whisper);
           return;
@@ -139,6 +150,9 @@ class Game {
     input.update();
 
     if (this.state === 'TITLE') {
+      // Keep ambient ember particles drifting on title screen
+      window.particleSystem.update('CRIMSON');
+
       // Rule 4: "The game launches straight to a title screen showing 'Press Z to start'."
       // Rule 2: Screen changes need a FRESH press of Z
       if (input.isZJustPressed()) {
@@ -151,12 +165,20 @@ class Game {
     } else if (this.state === 'PLAYING') {
       this.elapsedTime = performance.now() - this.startTime;
 
+      const prevDimension = this.player.dimension;
       const readyToRespawn = this.player.update(input, this.world);
       if (readyToRespawn) {
         this.totalDeaths++;
         this.player.respawn();
         this.camera.snapTo(this.player.x, this.player.y);
       }
+
+      // Dimension shift flash
+      if (this.player.dimension !== prevDimension) {
+        this.shiftFlash = 10;
+        this.shiftFlashColor = (this.player.dimension === 'SOLAR') ? '#ffb300' : '#ff1e42';
+      }
+      if (this.shiftFlash > 0) this.shiftFlash--;
 
       if (!this.player.isDead) {
         this.checkWorldInteractions();
@@ -213,7 +235,16 @@ class Game {
     // 6. Lighting Veil
     this.drawBioluminescentLightVeil(renderOffset);
 
-    // 7. Screens & Overlays
+    // 7. Dimension Shift Screen Flash
+    if (this.shiftFlash > 0) {
+      this.ctx.save();
+      this.ctx.fillStyle = this.shiftFlashColor;
+      this.ctx.globalAlpha = (this.shiftFlash / 10) * 0.24;
+      this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      this.ctx.restore();
+    }
+
+    // 8. Screens & Overlays
     if (this.state === 'TITLE') {
       this.drawTitleScreen();
     } else if (this.state === 'PLAYING') {
@@ -361,18 +392,84 @@ class Game {
             this.ctx.restore();
           }
         } else if (tile === 4) {
-          // Lethal Thorn Spikes
+          // Lethal Thorn Spikes (Rule 3 & 4: Clear, high contrast danger)
+          this.ctx.save();
+          this.ctx.fillStyle = '#200508';
+          this.ctx.fillRect(sx, sy + 15, 20, 5); // Thorn root bed
           this.ctx.fillStyle = '#ff1744';
           this.ctx.shadowColor = '#ff1744';
-          this.ctx.shadowBlur = 6;
+          this.ctx.shadowBlur = 8;
           for (let i = 0; i < 4; i++) {
             this.ctx.beginPath();
             this.ctx.moveTo(sx + i * 5, sy + 20);
-            this.ctx.lineTo(sx + i * 5 + 2.5, sy + 6);
+            this.ctx.lineTo(sx + i * 5 + 2.5, sy + 4);
             this.ctx.lineTo(sx + (i + 1) * 5, sy + 20);
             this.ctx.fill();
           }
-          this.ctx.shadowBlur = 0;
+          // Razor white tips for readability from 2 meters
+          this.ctx.fillStyle = '#ffffff';
+          for (let i = 0; i < 4; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(sx + i * 5 + 1.2, sy + 9);
+            this.ctx.lineTo(sx + i * 5 + 2.5, sy + 4);
+            this.ctx.lineTo(sx + i * 5 + 3.8, sy + 9);
+            this.ctx.fill();
+          }
+          this.ctx.restore();
+        } else if (tile === 5) {
+          // Solar Kinetic Spring (Launches player high up in Solar)
+          if (dim === 'SOLAR') {
+            this.ctx.save();
+            this.ctx.fillStyle = '#3b2314';
+            this.ctx.fillRect(sx, sy + 14, 20, 6);
+            this.ctx.fillStyle = '#ffb300';
+            this.ctx.shadowColor = '#ffb300';
+            this.ctx.shadowBlur = 12;
+            const bounceY = Math.sin(now * 5) * 2;
+            this.ctx.beginPath();
+            this.ctx.ellipse(sx + 10, sy + 10 + bounceY, 9, 6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillRect(sx + 8, sy + 8 + bounceY, 4, 3);
+            this.ctx.restore();
+          } else {
+            // Ghost preview spring
+            const pulse = Math.sin(now * 3 + c * 0.4) * 0.1 + 0.35;
+            this.ctx.save();
+            this.ctx.strokeStyle = `rgba(255, 179, 0, ${pulse * 0.9})`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.setLineDash([3, 3]);
+            this.ctx.strokeRect(sx + 0.5, sy + 6.5, 19, 13);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
+          }
+        } else if (tile === 6) {
+          // Crimson Kinetic Spring (Launches player high up in Crimson)
+          if (dim === 'CRIMSON') {
+            this.ctx.save();
+            this.ctx.fillStyle = '#120508';
+            this.ctx.fillRect(sx, sy + 14, 20, 6);
+            this.ctx.fillStyle = '#ff1e42';
+            this.ctx.shadowColor = '#ff1e42';
+            this.ctx.shadowBlur = 12;
+            const bounceY = Math.sin(now * 5) * 2;
+            this.ctx.beginPath();
+            this.ctx.ellipse(sx + 10, sy + 10 + bounceY, 9, 6, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillRect(sx + 8, sy + 8 + bounceY, 4, 3);
+            this.ctx.restore();
+          } else {
+            // Ghost preview spring
+            const pulse = Math.sin(now * 3 + c * 0.4) * 0.1 + 0.35;
+            this.ctx.save();
+            this.ctx.strokeStyle = `rgba(255, 30, 66, ${pulse * 0.9})`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.setLineDash([3, 3]);
+            this.ctx.strokeRect(sx + 0.5, sy + 6.5, 19, 13);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
+          }
         }
       }
     }
@@ -524,6 +621,14 @@ class Game {
     this.ctx.textAlign = 'right';
     this.ctx.fillText(`💎 ${this.shardsCollected}/20`, CANVAS_WIDTH - 18, 24);
 
+    // Near tablet prompt
+    if (this.nearWhisper) {
+      const pulse = Math.sin(performance.now() * 0.008) * 0.2 + 0.8;
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
+      this.ctx.font = 'bold 13px "Share Tech Mono", monospace';
+      this.ctx.fillText("📜 ANCIENT ARCHIVE: PRESS [DOWN ARROW] TO READ", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+    }
+
     // Bottom Dimension indicator
     const dim = this.player.dimension;
     this.ctx.textAlign = 'center';
@@ -617,6 +722,9 @@ class Game {
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(7, 2, 4, 0.96)';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Ambient floating crimson embers in title background
+    window.particleSystem.draw(this.ctx, 'CRIMSON', { x: 0, y: 0 });
 
     // Rule 4: Large, high contrast text readable from 2 meters
     this.ctx.textAlign = 'center';

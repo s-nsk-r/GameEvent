@@ -122,7 +122,7 @@ class SoundEngine {
         
         const noteIndex = (beat / 2 + bar * 2) % this.leadNotesSolar.length;
         let noteFreq = this.leadNotesSolar[noteIndex];
-        if (this.currentDimension === 'VOID') noteFreq *= 0.5; // Octave lower in dark world
+        if (this.currentDimension === 'CRIMSON') noteFreq *= 0.5; // Octave lower in dark world
 
         leadOsc.frequency.setValueAtTime(noteFreq, now);
         leadEnv.gain.setValueAtTime(0.18, now);
