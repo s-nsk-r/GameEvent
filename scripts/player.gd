@@ -66,8 +66,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		coyote_time = max(0.0, coyote_time - delta)
 
-	# Jump Buffer on Up Arrow
-	if Input.is_action_just_pressed("jump_up"):
+	# Jump Buffer on Space
+	if Input.is_action_just_pressed("jump_space"):
 		jump_buffer = 0.12
 	else:
 		jump_buffer = max(0.0, jump_buffer - delta)
@@ -75,29 +75,24 @@ func _physics_process(delta: float) -> void:
 	if wall_lockout > 0.0:
 		wall_lockout = max(0.0, wall_lockout - delta)
 
-	# Secondary Action: Dimension Phase on Space (rate-limited to 2s per Rule 1)
-	if Input.is_action_just_pressed("phase_space") and phase_cooldown <= 0.0:
-		trigger_dimension_phase()
+	# Primary Action on Z: Dimension Change (Solar <-> Void)
+	if Input.is_action_just_pressed("action_z"):
+		trigger_dimension_change()
 
-	# Primary Action: Air-Dash on Z
-	if Input.is_action_just_pressed("action_z") and can_dash and not is_dashing:
-		start_phase_dash()
-
-	if is_dashing:
-		process_dash(delta)
-	else:
-		process_movement(delta)
-		process_wall_mechanics(delta)
-		process_jumping(delta)
+	process_movement(delta)
+	process_wall_mechanics(delta)
+	process_jumping(delta)
 
 	# Squash & Stretch recovery
 	visual_root.scale = visual_root.scale.lerp(Vector2.ONE, 12.0 * delta)
 
 	move_and_slide()
 
-func trigger_dimension_phase() -> void:
-	phase_cooldown = max_phase_cooldown
+func trigger_dimension_change() -> void:
 	dimension = "VOID" if dimension == "SOLAR" else "SOLAR"
+	visual_root.scale = Vector2(1.2, 0.8)
+	update_dimension_visuals()
+	dimension_swapped.emit(dimension)
 	update_dimension_visuals()
 	dimension_swapped.emit(dimension)
 
@@ -140,9 +135,9 @@ func process_movement(delta: float) -> void:
 		if wall_lockout <= 0.0:
 			velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	# Gravity and Feather Glide with Up Arrow
+	# Gravity and Feather Glide with Space held
 	var current_gravity = gravity
-	if not is_on_floor() and Input.is_action_pressed("jump_up") and velocity.y > 0.0:
+	if not is_on_floor() and Input.is_action_pressed("jump_space") and velocity.y > 0.0:
 		current_gravity = float_gravity
 		velocity.y = min(velocity.y, float_fall_speed)
 
@@ -182,7 +177,7 @@ func process_jumping(_delta: float) -> void:
 			jumps_left = 0
 			visual_root.scale = Vector2(1.3, 0.7)
 
-	if Input.is_action_just_released("jump_up") and velocity.y < -50.0:
+	if Input.is_action_just_released("jump_space") and velocity.y < -50.0:
 		velocity.y *= 0.5
 
 func refresh_abilities() -> void:

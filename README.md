@@ -10,10 +10,10 @@ A dimensional platformer built for the Game Jam, featuring seamless open-world t
 | :--- | :--- |
 | **`Left Arrow`** | Move Left |
 | **`Right Arrow`** | Move Right |
-| **`Up Arrow`** | Jump / Wall-Leap / Aim Up |
+| **`Up Arrow`** | Look Up / Aim |
 | **`Down Arrow`** | Duck / Interact with Tablets |
-| **`Z`** | **Primary Action / Air-Dash / Start / Confirm / Restart** |
-| **`Space`** | **Secondary Action: Dimension Phase** (Solar Gold $\leftrightarrow$ Void Cyan) |
+| **`Space`** | **Jump / Wall-Leap / Feather Glide (Hold)** |
+| **`Z`** | **Change Dimension (Solar $\leftrightarrow$ Void) / Start / Confirm / Restart** |
 
 *Both `z` and `Z` are supported.*
 

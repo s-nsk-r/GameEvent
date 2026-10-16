@@ -230,42 +230,19 @@ class Player {
     if (this.invulnerableTimer > 0) this.invulnerableTimer--;
     if (this.hazardWarningTimer > 0) this.hazardWarningTimer--;
 
-    // Secondary Action: Dimension Phase on Space (Fresh press, rate-limited)
-    if (input.justPressed.space) {
+    // Primary Action on Z: Dimension Change (Solar <-> Void)
+    if (input.justPressed.z) {
       this.triggerDimensionPhase();
     }
 
-    // Primary Action: Air-Dash on Z (Fresh press)
-    if (input.justPressed.z) {
-      this.triggerAirDash(input);
+    // Jump Buffer on Space
+    if (input.justPressed.space) {
+      this.jumpBuffer = this.maxJumpBuffer;
+    } else if (this.jumpBuffer > 0) {
+      this.jumpBuffer--;
     }
 
-    // 1. Dash Execution
-    if (this.isDashing) {
-      this.dashTimer--;
-      if (this.dashTimer <= 0) {
-        this.isDashing = false;
-        this.vx *= 0.4;
-        this.vy *= 0.4;
-      }
-    } else {
-      // 2. Timers & Buffers
-      if (this.grounded) {
-        this.coyoteTime = this.maxCoyote;
-        this.jumpsLeft = 2;
-        this.canDash = true;
-      } else if (this.coyoteTime > 0) {
-        this.coyoteTime--;
-      }
-
-      // Jump input via Up Arrow
-      if (input.justPressed.up) {
-        this.jumpBuffer = this.maxJumpBuffer;
-      } else if (this.jumpBuffer > 0) {
-        this.jumpBuffer--;
-      }
-
-      if (this.wallJumpLockout > 0) this.wallJumpLockout--;
+    if (this.wallJumpLockout > 0) this.wallJumpLockout--;
 
       // 3. Continuous Horizontal Movement on Held Arrow Keys (Rule 2)
       let moveDir = 0;
@@ -310,9 +287,9 @@ class Player {
         window.particleSystem.emitWallSlideSparks(sparkX, this.y + this.h / 2, this.onWall, sparkColor);
       }
 
-      // 5. Gravity & Feather Float
+      // 5. Gravity & Feather Float with Space held
       let currentGravity = this.gravity;
-      if (!this.grounded && input.held.up && this.vy > 0) {
+      if (!this.grounded && input.held.space && this.vy > 0) {
         if (this.vy > this.floatFallSpeed) {
           this.vy = this.floatFallSpeed;
         }
@@ -322,7 +299,7 @@ class Player {
       this.vy += currentGravity;
       if (this.vy > this.maxFallSpeed) this.vy = this.maxFallSpeed;
 
-      // 6. Jumping with Up Arrow
+      // 6. Jumping with Space
       if (this.jumpBuffer > 0) {
         if (this.coyoteTime > 0) {
           // Ground Jump
@@ -359,8 +336,8 @@ class Player {
         }
       }
 
-      // Variable jump height: releasing Up early dampens ascent
-      if (!input.held.up && this.vy < -1.5) {
+      // Variable jump height: releasing Space early dampens ascent
+      if (!input.held.space && this.vy < -1.5) {
         this.vy *= 0.52;
       }
     }

@@ -526,10 +526,10 @@ class Game {
     this.ctx.font = 'bold 12px "Share Tech Mono", monospace';
     if (dim === 'SOLAR') {
       this.ctx.fillStyle = '#ffb300';
-      this.ctx.fillText(`DIMENSION: [SOLAR // GOLD]  •  SPACE TO PHASE: ${canPhase ? "READY" : "CHARGING"}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
+      this.ctx.fillText("DIMENSION: [SOLAR // GOLD]  •  PRESS Z TO CHANGE", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
     } else {
       this.ctx.fillStyle = '#00e5ff';
-      this.ctx.fillText(`DIMENSION: [VOID // CYAN]  •  SPACE TO PHASE: ${canPhase ? "READY" : "CHARGING"}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
+      this.ctx.fillText("DIMENSION: [VOID // CYAN]  •  PRESS Z TO CHANGE", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
     }
 
     this.ctx.restore();
@@ -641,8 +641,8 @@ class Game {
     this.ctx.fillText("CONTROLS:", CANVAS_WIDTH / 2, 245);
     this.ctx.fillStyle = '#ffffff';
     this.ctx.fillText("LEFT / RIGHT ARROWS : MOVE", CANVAS_WIDTH / 2, 270);
-    this.ctx.fillText("UP ARROW : JUMP / GLIDE", CANVAS_WIDTH / 2, 292);
-    this.ctx.fillText("Z : AIR-DASH  |  SPACE : DIMENSION PHASE", CANVAS_WIDTH / 2, 314);
+    this.ctx.fillText("SPACE : JUMP / GLIDE", CANVAS_WIDTH / 2, 292);
+    this.ctx.fillText("Z : CHANGE DIMENSION / START", CANVAS_WIDTH / 2, 314);
 
     this.ctx.restore();
   }

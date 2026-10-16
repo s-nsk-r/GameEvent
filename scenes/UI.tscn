@@ -67,7 +67,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.55, 0.65, 0.75, 0.8)
 theme_override_font_sizes/font_size = 11
-text = "ARROWS: MOVE / JUMP (UP)  |  Z: AIR-DASH / CONFIRM  |  SPACE: DIMENSION PHASE"
+text = "ARROWS: MOVE  |  SPACE: JUMP  |  Z: CHANGE DIMENSION"
 horizontal_alignment = 1
 
 [node name="DialogPanel" type="Panel" parent="."]
