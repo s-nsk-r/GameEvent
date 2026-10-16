@@ -94,7 +94,7 @@ class Game {
         beacon.active = true;
         this.player.setRespawn(beacon);
         window.soundEngine.playLevelComplete();
-        const color = (this.player.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
+        const color = (this.player.dimension === 'SOLAR') ? '#ffb300' : '#ff1e42';
         window.particleSystem.addShockwave(beacon.x, beacon.y, color);
         window.particleSystem.emit(beacon.x, beacon.y, color, 30, 4, 35);
       }
@@ -233,25 +233,26 @@ class Game {
     const grad = this.ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
     if (dim === 'SOLAR') {
       grad.addColorStop(0, '#16110a');
-      grad.addColorStop(0.5, '#22170e');
+      grad.addColorStop(0.5, '#26180c');
       grad.addColorStop(1, '#110c08');
     } else {
-      grad.addColorStop(0, '#060f1b');
-      grad.addColorStop(0.5, '#0a1d30');
-      grad.addColorStop(1, '#040b12');
+      // Crimson Obsidian Twilight (Red & Black)
+      grad.addColorStop(0, '#0a0305');
+      grad.addColorStop(0.5, '#19060a');
+      grad.addColorStop(1, '#050102');
     }
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Far Celestial Glow (0.15x parallax)
     const farX = -(offset.x * 0.15) % 640;
-    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(255, 179, 0, 0.08)' : 'rgba(0, 229, 255, 0.08)';
+    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(255, 179, 0, 0.10)' : 'rgba(255, 30, 66, 0.12)';
     this.ctx.beginPath();
     this.ctx.arc(CANVAS_WIDTH * 0.72 + farX * 0.5, 90, 85, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Distant mountain ridges
-    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(42, 28, 18, 0.7)' : 'rgba(12, 28, 46, 0.7)';
+    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(42, 28, 18, 0.7)' : 'rgba(28, 8, 12, 0.8)';
     this.ctx.beginPath();
     this.ctx.moveTo(0, CANVAS_HEIGHT);
     for (let x = 0; x <= CANVAS_WIDTH + 40; x += 40) {
@@ -264,7 +265,7 @@ class Game {
 
     // Midground Spirit Trees (0.45x parallax)
     const midX = -(offset.x * 0.45) % 640;
-    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(32, 22, 15, 0.85)' : 'rgba(8, 20, 34, 0.85)';
+    this.ctx.fillStyle = (dim === 'SOLAR') ? 'rgba(32, 22, 15, 0.85)' : 'rgba(18, 5, 8, 0.9)';
     this.ctx.beginPath();
     this.ctx.moveTo(0, CANVAS_HEIGHT);
     for (let x = 0; x <= CANVAS_WIDTH + 30; x += 30) {
@@ -283,7 +284,7 @@ class Game {
     const endRow = Math.min(this.world.rows - 1, Math.ceil((offset.y + CANVAS_HEIGHT) / this.world.tileSize));
 
     const dim = this.player.dimension;
-    const now = performance.now() * 0.005;
+    const now = performance.now() * 0.004;
 
     for (let r = startRow; r <= endRow; r++) {
       for (let c = startCol; c <= endCol; c++) {
@@ -294,76 +295,80 @@ class Game {
         const sy = Math.floor(r * this.world.tileSize - offset.y);
 
         if (tile === 1) {
-          // Universal solid stone / wood
-          this.ctx.fillStyle = '#222b38';
+          // Universal solid earthen stone / tree wood
+          this.ctx.fillStyle = '#1c1b18';
           this.ctx.fillRect(sx, sy, 20, 20);
-          this.ctx.strokeStyle = '#37474f';
+          this.ctx.strokeStyle = '#2d2b27';
           this.ctx.lineWidth = 1;
           this.ctx.strokeRect(sx + 0.5, sy + 0.5, 19, 19);
 
+          // Living moss/lichen top layer
           if (this.world.getTile(c, r - 1) === 0) {
-            this.ctx.fillStyle = (dim === 'SOLAR') ? '#ffb300' : '#00e5ff';
+            this.ctx.fillStyle = (dim === 'SOLAR') ? '#3e4a36' : '#2d1820';
             this.ctx.fillRect(sx, sy, 20, 3);
           }
         } else if (tile === 2) {
-          // Solar Gold Crystal
+          // Solar Gold Platforms (Ancient Sunlit Roots)
           if (dim === 'SOLAR') {
-            this.ctx.fillStyle = '#ffb300';
-            this.ctx.shadowColor = '#ffb300';
-            this.ctx.shadowBlur = 6;
+            // Solid, luminous active state
+            this.ctx.fillStyle = '#3b2314'; // Bark base
             this.ctx.fillRect(sx, sy, 20, 20);
-            this.ctx.fillStyle = '#ffe082';
-            this.ctx.fillRect(sx + 2, sy + 2, 16, 16);
-            this.ctx.shadowBlur = 0;
-          } else {
-            // Hazard laser
-            const pulse = Math.sin(now * 3 + c * 0.5) * 0.3 + 0.7;
-            this.ctx.fillStyle = `rgba(255, 143, 0, ${pulse * 0.3})`;
-            this.ctx.fillRect(sx + 2, sy + 2, 16, 16);
-            this.ctx.strokeStyle = `rgba(255, 179, 0, ${pulse})`;
+            this.ctx.fillStyle = '#ffb300'; // Radiant golden top
             this.ctx.shadowColor = '#ffb300';
             this.ctx.shadowBlur = 8;
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.moveTo(sx + 10, sy);
-            this.ctx.lineTo(sx + 10, sy + 20);
-            this.ctx.stroke();
+            this.ctx.fillRect(sx, sy, 20, 4);
+            this.ctx.fillStyle = '#ffe082';
+            this.ctx.fillRect(sx + 2, sy + 1, 16, 2);
             this.ctx.shadowBlur = 0;
+          } else {
+            // Ghost Platform Preview (35% opacity + glowing outline)
+            // Player clearly sees where to land and presses Z mid-air!
+            const pulse = Math.sin(now * 3 + c * 0.4) * 0.1 + 0.35;
+            this.ctx.save();
+            this.ctx.fillStyle = `rgba(255, 179, 0, ${pulse * 0.35})`;
+            this.ctx.fillRect(sx + 1, sy + 1, 18, 18);
+            this.ctx.strokeStyle = `rgba(255, 179, 0, ${pulse * 0.9})`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.setLineDash([3, 3]);
+            this.ctx.strokeRect(sx + 0.5, sy + 0.5, 19, 19);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
           }
         } else if (tile === 3) {
-          // Void Cyan Crystal
-          if (dim === 'VOID') {
-            this.ctx.fillStyle = '#00e5ff';
-            this.ctx.shadowColor = '#00e5ff';
-            this.ctx.shadowBlur = 6;
+          // Crimson Obsidian Platforms (Dark Fungi / Obsidian Slabs)
+          if (dim === 'CRIMSON') {
+            // Solid, luminous active state
+            this.ctx.fillStyle = '#120508'; // Obsidian black base
             this.ctx.fillRect(sx, sy, 20, 20);
-            this.ctx.fillStyle = '#80d8ff';
-            this.ctx.fillRect(sx + 2, sy + 2, 16, 16);
+            this.ctx.fillStyle = '#ff1e42'; // Luminous crimson ruby top
+            this.ctx.shadowColor = '#ff1e42';
+            this.ctx.shadowBlur = 8;
+            this.ctx.fillRect(sx, sy, 20, 4);
+            this.ctx.fillStyle = '#ff5252';
+            this.ctx.fillRect(sx + 2, sy + 1, 16, 2);
             this.ctx.shadowBlur = 0;
           } else {
-            // Hazard laser
-            const pulse = Math.sin(now * 3 + c * 0.5) * 0.3 + 0.7;
-            this.ctx.fillStyle = `rgba(0, 176, 255, ${pulse * 0.3})`;
-            this.ctx.fillRect(sx + 2, sy + 2, 16, 16);
-            this.ctx.strokeStyle = `rgba(0, 229, 255, ${pulse})`;
-            this.ctx.shadowColor = '#00e5ff';
-            this.ctx.shadowBlur = 8;
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.moveTo(sx + 10, sy);
-            this.ctx.lineTo(sx + 10, sy + 20);
-            this.ctx.stroke();
-            this.ctx.shadowBlur = 0;
+            // Ghost Platform Preview (35% opacity + glowing outline)
+            const pulse = Math.sin(now * 3 + c * 0.4) * 0.1 + 0.35;
+            this.ctx.save();
+            this.ctx.fillStyle = `rgba(255, 30, 66, ${pulse * 0.35})`;
+            this.ctx.fillRect(sx + 1, sy + 1, 18, 18);
+            this.ctx.strokeStyle = `rgba(255, 30, 66, ${pulse * 0.9})`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.setLineDash([3, 3]);
+            this.ctx.strokeRect(sx + 0.5, sy + 0.5, 19, 19);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
           }
         } else if (tile === 4) {
-          // Thorns
+          // Lethal Thorn Spikes
           this.ctx.fillStyle = '#ff1744';
           this.ctx.shadowColor = '#ff1744';
-          this.ctx.shadowBlur = 4;
+          this.ctx.shadowBlur = 6;
           for (let i = 0; i < 4; i++) {
             this.ctx.beginPath();
             this.ctx.moveTo(sx + i * 5, sy + 20);
-            this.ctx.lineTo(sx + i * 5 + 2.5, sy + 7);
+            this.ctx.lineTo(sx + i * 5 + 2.5, sy + 6);
             this.ctx.lineTo(sx + (i + 1) * 5, sy + 20);
             this.ctx.fill();
           }
@@ -383,8 +388,8 @@ class Game {
       const sy = Math.floor(beacon.y - offset.y);
       if (sx < -40 || sx > CANVAS_WIDTH + 40 || sy < -40 || sy > CANVAS_HEIGHT + 40) continue;
 
-      const activeColor = beacon.active ? ((dim === 'SOLAR') ? '#ffb300' : '#00e5ff') : '#455a64';
-      this.ctx.fillStyle = '#263238';
+      const activeColor = beacon.active ? ((dim === 'SOLAR') ? '#ffb300' : '#ff1e42') : '#372026';
+      this.ctx.fillStyle = '#1a0c10';
       this.ctx.fillRect(sx - 8, sy - 25, 16, 30);
 
       this.ctx.save();
@@ -397,13 +402,13 @@ class Game {
       this.ctx.restore();
     }
 
-    // Lanterns (Mid-air dash resets)
+    // Lanterns (Mid-air jump resets)
     for (let lantern of this.world.lanterns) {
       const sx = Math.floor(lantern.x - offset.x);
       const sy = Math.floor(lantern.y - offset.y);
       if (sx < -40 || sx > CANVAS_WIDTH + 40 || sy < -40 || sy > CANVAS_HEIGHT + 40) continue;
 
-      const lColor = (dim === 'SOLAR') ? '#ffe082' : '#80d8ff';
+      const lColor = (dim === 'SOLAR') ? '#ffe082' : '#ff5252';
       const floatY = Math.sin(now * 3 + lantern.x) * 4;
 
       this.ctx.save();
@@ -431,7 +436,7 @@ class Game {
       const floatY = Math.sin(now * 4 + shard.pulse) * 3;
       this.ctx.save();
       this.ctx.fillStyle = '#ffffff';
-      this.ctx.shadowColor = (dim === 'SOLAR') ? '#ffb300' : '#00e5ff';
+      this.ctx.shadowColor = (dim === 'SOLAR') ? '#ffb300' : '#ff1e42';
       this.ctx.shadowBlur = 10;
       this.ctx.beginPath();
       this.ctx.arc(sx, sy + floatY, 5, 0, Math.PI * 2);
@@ -446,10 +451,10 @@ class Game {
       if (sx < -30 || sx > CANVAS_WIDTH + 30 || sy < -30 || sy > CANVAS_HEIGHT + 30) continue;
 
       this.ctx.save();
-      this.ctx.fillStyle = '#1e2633';
+      this.ctx.fillStyle = '#1c0e12';
       this.ctx.fillRect(sx - 10, sy - 8, 20, 16);
-      this.ctx.strokeStyle = '#00e5ff';
-      this.ctx.shadowColor = '#00e5ff';
+      this.ctx.strokeStyle = '#ff1e42';
+      this.ctx.shadowColor = '#ff1e42';
       this.ctx.shadowBlur = 8;
       this.ctx.lineWidth = 1.5;
       this.ctx.strokeRect(sx - 10, sy - 8, 20, 16);
@@ -465,7 +470,7 @@ class Game {
     const asy = Math.floor(altar.y - offset.y);
     if (asx > -100 && asx < CANVAS_WIDTH + 100) {
       this.ctx.save();
-      const aColor = (dim === 'SOLAR') ? '#ffb300' : '#00e5ff';
+      const aColor = (dim === 'SOLAR') ? '#ffb300' : '#ff1e42';
       this.ctx.strokeStyle = aColor;
       this.ctx.shadowColor = aColor;
       this.ctx.shadowBlur = 24;
@@ -486,8 +491,8 @@ class Game {
     const dim = this.player.dimension;
 
     this.ctx.save();
-    const lightGrad = this.ctx.createRadialGradient(px, py, 12, px, py, 150);
-    const auraColor = (dim === 'SOLAR') ? 'rgba(255, 179, 0, 0.16)' : 'rgba(0, 229, 255, 0.16)';
+    const lightGrad = this.ctx.createRadialGradient(px, py, 12, px, py, 160);
+    const auraColor = (dim === 'SOLAR') ? 'rgba(255, 179, 0, 0.18)' : 'rgba(255, 30, 66, 0.20)';
     lightGrad.addColorStop(0, auraColor);
     lightGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -519,17 +524,16 @@ class Game {
     this.ctx.textAlign = 'right';
     this.ctx.fillText(`💎 ${this.shardsCollected}/20`, CANVAS_WIDTH - 18, 24);
 
-    // Bottom Dimension indicator & Phase readiness
+    // Bottom Dimension indicator
     const dim = this.player.dimension;
-    const canPhase = (this.player.phaseCooldown <= 0);
     this.ctx.textAlign = 'center';
     this.ctx.font = 'bold 12px "Share Tech Mono", monospace';
     if (dim === 'SOLAR') {
       this.ctx.fillStyle = '#ffb300';
       this.ctx.fillText("DIMENSION: [SOLAR // GOLD]  •  PRESS Z TO CHANGE", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
     } else {
-      this.ctx.fillStyle = '#00e5ff';
-      this.ctx.fillText("DIMENSION: [VOID // CYAN]  •  PRESS Z TO CHANGE", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
+      this.ctx.fillStyle = '#ff1e42';
+      this.ctx.fillText("DIMENSION: [CRIMSON // RED]  •  PRESS Z TO CHANGE", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 10);
     }
 
     this.ctx.restore();
@@ -539,7 +543,7 @@ class Game {
     if (!this.activeWhisper) return;
 
     this.ctx.save();
-    this.ctx.fillStyle = 'rgba(6, 10, 16, 0.92)';
+    this.ctx.fillStyle = 'rgba(8, 3, 5, 0.94)';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     const mx = 60;
@@ -547,22 +551,22 @@ class Game {
     const mw = CANVAS_WIDTH - 120;
     const mh = CANVAS_HEIGHT - 80;
 
-    this.ctx.fillStyle = '#08111a';
-    this.ctx.strokeStyle = '#00e5ff';
+    this.ctx.fillStyle = '#120508';
+    this.ctx.strokeStyle = '#ff1e42';
     this.ctx.lineWidth = 2;
-    this.ctx.shadowColor = '#00e5ff';
+    this.ctx.shadowColor = '#ff1e42';
     this.ctx.shadowBlur = 16;
     this.ctx.fillRect(mx, my, mw, mh);
     this.ctx.strokeRect(mx, my, mw, mh);
     this.ctx.shadowBlur = 0;
 
     // Title
-    this.ctx.fillStyle = '#00e5ff';
+    this.ctx.fillStyle = '#ff1e42';
     this.ctx.font = 'bold 16px "Chakra Petch", sans-serif';
     this.ctx.textAlign = 'left';
     this.ctx.fillText(`// ${this.activeWhisper.title}`, mx + 20, my + 32);
 
-    this.ctx.strokeStyle = '#1e293b';
+    this.ctx.strokeStyle = '#2d1218';
     this.ctx.beginPath();
     this.ctx.moveTo(mx + 20, my + 46);
     this.ctx.lineTo(mx + mw - 20, my + 46);
@@ -611,7 +615,7 @@ class Game {
 
   drawTitleScreen() {
     this.ctx.save();
-    this.ctx.fillStyle = 'rgba(4, 7, 12, 0.95)';
+    this.ctx.fillStyle = 'rgba(7, 2, 4, 0.96)';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Rule 4: Large, high contrast text readable from 2 meters
@@ -623,8 +627,8 @@ class Game {
     this.ctx.fillText("PHASE COURIER", CANVAS_WIDTH / 2, 95);
 
     this.ctx.font = 'bold 18px "Share Tech Mono", monospace';
-    this.ctx.fillStyle = '#00e5ff';
-    this.ctx.shadowColor = '#00e5ff';
+    this.ctx.fillStyle = '#ff1e42';
+    this.ctx.shadowColor = '#ff1e42';
     this.ctx.shadowBlur = 14;
     this.ctx.fillText("WILL OF THE CONTINUUM", CANVAS_WIDTH / 2, 130);
     this.ctx.shadowBlur = 0;
@@ -649,7 +653,7 @@ class Game {
 
   drawGameOverScreen() {
     this.ctx.save();
-    this.ctx.fillStyle = 'rgba(6, 4, 8, 0.96)';
+    this.ctx.fillStyle = 'rgba(8, 2, 4, 0.96)';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     this.ctx.textAlign = 'center';
@@ -670,12 +674,12 @@ class Game {
     this.ctx.fillText(`TIME: ${mins}:${secs}  |  SHARDS: ${this.shardsCollected}/20`, CANVAS_WIDTH / 2, 160);
 
     if (this.gameOverTimer > 0) {
-      this.ctx.fillStyle = '#78909c';
+      this.ctx.fillStyle = '#8a6068';
       this.ctx.font = '14px "Share Tech Mono", monospace';
       this.ctx.fillText("RECALIBRATING RESONANCE...", CANVAS_WIDTH / 2, 230);
     } else {
       const pulse = (Math.sin(performance.now() * 0.006) + 1) * 0.5;
-      this.ctx.fillStyle = `rgba(0, 229, 255, ${0.4 + pulse * 0.6})`;
+      this.ctx.fillStyle = `rgba(255, 30, 66, ${0.4 + pulse * 0.6})`;
       this.ctx.font = 'bold 20px "Share Tech Mono", monospace';
       this.ctx.fillText("PRESS Z TO PLAY AGAIN", CANVAS_WIDTH / 2, 230);
     }
@@ -685,19 +689,19 @@ class Game {
 
   drawVictoryScreen() {
     this.ctx.save();
-    this.ctx.fillStyle = 'rgba(4, 8, 14, 0.96)';
+    this.ctx.fillStyle = 'rgba(6, 2, 4, 0.96)';
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     this.ctx.textAlign = 'center';
     this.ctx.font = 'bold 34px "Chakra Petch", sans-serif';
-    this.ctx.fillStyle = '#00e5ff';
-    this.ctx.shadowColor = '#00e5ff';
-    this.ctx.shadowBlur = 22;
-    this.ctx.fillText("THE ANCESTRAL DAWN RESTORED", CANVAS_WIDTH / 2, 85);
-
-    this.ctx.font = '15px "Share Tech Mono", monospace';
     this.ctx.fillStyle = '#ffb300';
     this.ctx.shadowColor = '#ffb300';
+    this.ctx.shadowBlur = 22;
+    this.ctx.fillText("THE ANCESTRAL CONVERGENCE", CANVAS_WIDTH / 2, 85);
+
+    this.ctx.font = '15px "Share Tech Mono", monospace';
+    this.ctx.fillStyle = '#ff1e42';
+    this.ctx.shadowColor = '#ff1e42';
     this.ctx.shadowBlur = 8;
     this.ctx.fillText("TWO WORLDS MERGED BENEATH A SINGLE LIVING SKY.", CANVAS_WIDTH / 2, 115);
     this.ctx.shadowBlur = 0;
@@ -713,11 +717,12 @@ class Game {
     this.ctx.fillText(`SPIRIT SHARDS: ${this.shardsCollected} / 20`, CANVAS_WIDTH / 2, 225);
 
     if (this.gameOverTimer > 0) {
-      this.ctx.fillStyle = '#78909c';
+      this.ctx.fillStyle = '#8a6068';
       this.ctx.font = '14px "Share Tech Mono", monospace';
       this.ctx.fillText("NEXUS HARMONIZING...", CANVAS_WIDTH / 2, 280);
     } else {
-      this.ctx.fillStyle = '#ffffff';
+      const pulse = (Math.sin(performance.now() * 0.006) + 1) * 0.5;
+      this.ctx.fillStyle = `rgba(255, 179, 0, ${0.4 + pulse * 0.6})`;
       this.ctx.font = 'bold 18px "Share Tech Mono", monospace';
       this.ctx.fillText("PRESS Z TO PLAY AGAIN", CANVAS_WIDTH / 2, 280);
     }

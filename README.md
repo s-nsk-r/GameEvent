@@ -13,7 +13,7 @@ A dimensional platformer built for the Game Jam, featuring seamless open-world t
 | **`Up Arrow`** | Look Up / Aim |
 | **`Down Arrow`** | Duck / Interact with Tablets |
 | **`Space`** | **Jump / Wall-Leap / Feather Glide (Hold)** |
-| **`Z`** | **Change Dimension (Solar $\leftrightarrow$ Void) / Start / Confirm / Restart** |
+| **`Z`** | **Change Dimension (Solar $\leftrightarrow$ Crimson [Red & Black]) / Start / Confirm / Restart** |
 
 *Both `z` and `Z` are supported.*
 

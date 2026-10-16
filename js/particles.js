@@ -142,7 +142,7 @@ class ParticleSystem {
   }
 
   draw(ctx, dimension, renderOffset) {
-    const moteColor = (dimension === 'SOLAR') ? 'rgba(255, 179, 0, ' : 'rgba(0, 229, 255, ';
+    const moteColor = (dimension === 'SOLAR') ? 'rgba(255, 179, 0, ' : 'rgba(255, 30, 66, ';
 
     // 1. Draw ambient floating forest spores
     for (let mote of this.ambientMotes) {

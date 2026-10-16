@@ -3,11 +3,11 @@
 // Tile Legend:
 // 0: Air
 // 1: Neutral Organic Stone / Tree Trunk (Solid in both dimensions)
-// 2: Solar Gold Crystal (Solid in Solar, kills in Void)
-// 3: Void Cyan Crystal (Solid in Void, kills in Solar)
+// 2: Solar Gold Crystal / Root (Solid in Solar, ghost preview in Crimson)
+// 3: Crimson Obsidian Mushroom / Crystal (Solid in Crimson, ghost preview in Solar)
 // 4: Thorn Spikes (Lethal in both dimensions)
 // 5: Solar Kinetic Spring
-// 6: Void Kinetic Spring
+// 6: Crimson Kinetic Spring
 
 class WorldMap {
   constructor() {

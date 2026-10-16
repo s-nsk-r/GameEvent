@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://main7b8v2m9k"]
+[gd_scene load_steps=18 format=3 uid="uid://main7b8v2m9k"]
 
 [ext_resource type="Script" path="res://scripts/world.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2_player"]
@@ -9,103 +9,537 @@
 [ext_resource type="PackedScene" path="res://scenes/WhisperTablet.tscn" id="7_whisper"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground1"]
-size = Vector2(800, 40)
+size = Vector2(500, 40)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hazard1"]
-size = Vector2(200, 30)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground2"]
+size = Vector2(400, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground3"]
+size = Vector2(350, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground4"]
+size = Vector2(450, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sanctuary"]
+size = Vector2(400, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_platform"]
+size = Vector2(90, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(30, 260)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_thorns"]
+size = Vector2(300, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_thorns_large"]
+size = Vector2(500, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_altar"]
+size = Vector2(80, 50)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_world")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.22, 0.18, 0.14, 1)
+color = Color(0.24, 0.19, 0.13, 1)
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
-[node name="FarLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2(0.15, 0.15)
-motion_mirroring = Vector2(1280, 0)
+[node name="DeepEclipseLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.12, 0.12)
+motion_mirroring = Vector2(2000, 0)
 
-[node name="FarMountains" type="Polygon2D" parent="ParallaxBackground/FarLayer"]
-color = Color(0.08, 0.12, 0.18, 1)
-polygon = PackedVector2Array(0, 360, 200, 180, 400, 260, 600, 140, 800, 240, 1000, 160, 1280, 360)
+[node name="EclipseMoon" type="Polygon2D" parent="ParallaxBackground/DeepEclipseLayer"]
+color = Color(0.4, 0.08, 0.14, 0.5)
+polygon = PackedVector2Array(400, 100, 440, 70, 500, 70, 540, 100, 560, 140, 540, 180, 500, 210, 440, 210, 400, 180, 380, 140)
 
-[node name="MidLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2(0.4, 0.4)
-motion_mirroring = Vector2(1280, 0)
+[node name="DistantPeaks" type="Polygon2D" parent="ParallaxBackground/DeepEclipseLayer"]
+color = Color(0.08, 0.03, 0.05, 1)
+polygon = PackedVector2Array(0, 400, 150, 220, 300, 310, 450, 180, 650, 280, 850, 170, 1100, 270, 1350, 160, 1650, 260, 2000, 400)
 
-[node name="MidTrees" type="Polygon2D" parent="ParallaxBackground/MidLayer"]
-color = Color(0.12, 0.18, 0.25, 0.8)
-polygon = PackedVector2Array(0, 360, 150, 240, 300, 310, 450, 210, 650, 300, 850, 220, 1050, 290, 1280, 360)
+[node name="MidForestLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.35, 0.35)
+motion_mirroring = Vector2(2000, 0)
+
+[node name="SpiritTrees" type="Polygon2D" parent="ParallaxBackground/MidForestLayer"]
+color = Color(0.12, 0.05, 0.08, 0.88)
+polygon = PackedVector2Array(0, 400, 100, 260, 220, 330, 380, 230, 540, 320, 720, 220, 920, 310, 1120, 210, 1340, 300, 1560, 220, 1780, 310, 2000, 400)
 
 [node name="WorldGeometry" type="Node2D" parent="."]
 
-[node name="NeutralGround" type="StaticBody2D" parent="WorldGeometry"]
+[node name="NeutralTerrain" type="Node2D" parent="WorldGeometry"]
+
+[node name="Ground1" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(250, 440)
 collision_layer = 1
 collision_mask = 0
 
-[node name="Shape1" type="CollisionShape2D" parent="WorldGeometry/NeutralGround"]
-position = Vector2(400, 460)
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/Ground1"]
 shape = SubResource("RectangleShape2D_ground1")
 
-[node name="Poly1" type="Polygon2D" parent="WorldGeometry/NeutralGround"]
-color = Color(0.14, 0.18, 0.24, 1)
-polygon = PackedVector2Array(0, 440, 800, 440, 800, 480, 0, 480)
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground1"]
+color = Color(0.14, 0.11, 0.1, 1)
+polygon = PackedVector2Array(-250, -20, 250, -20, 250, 20, -250, 20)
 
-[node name="SolarCrystals" type="StaticBody2D" parent="WorldGeometry"]
+[node name="MossEdge" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground1"]
+color = Color(0.28, 0.35, 0.24, 1)
+polygon = PackedVector2Array(-250, -20, 250, -20, 250, -16, -250, -16)
+
+[node name="LeftCliff" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(0, 300)
 collision_layer = 1
 collision_mask = 0
 
-[node name="Poly1" type="Polygon2D" parent="WorldGeometry/SolarCrystals"]
-color = Color(1, 0.7, 0.1, 1)
-polygon = PackedVector2Array(850, 420, 950, 420, 950, 440, 850, 440)
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/LeftCliff"]
+shape = SubResource("RectangleShape2D_wall")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WorldGeometry/SolarCrystals"]
-polygon = PackedVector2Array(850, 420, 950, 420, 950, 440, 850, 440)
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/LeftCliff"]
+color = Color(0.12, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-15, -130, 15, -130, 15, 130, -15, 130)
 
-[node name="VoidCrystals" type="StaticBody2D" parent="WorldGeometry"]
+[node name="ThornPit1" type="Area2D" parent="WorldGeometry/NeutralTerrain" groups=["hazards"]]
+position = Vector2(650, 480)
+collision_layer = 0
+collision_mask = 1
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/ThornPit1"]
+shape = SubResource("RectangleShape2D_thorns")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/ThornPit1"]
+color = Color(0.9, 0.08, 0.18, 0.95)
+polygon = PackedVector2Array(-150, 10, -140, -15, -130, 10, -120, -15, -110, 10, -100, -15, -90, 10, -80, -15, -70, 10, -60, -15, -50, 10, -40, -15, -30, 10, -20, -15, -10, 10, 0, -15, 10, 10, 20, -15, 30, 10, 40, -15, 50, 10, 60, -15, 70, 10, 80, -15, 90, 10, 100, -15, 110, 10, 120, -15, 130, 10, 140, -15, 150, 10)
+
+[node name="Ground2" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(1050, 440)
 collision_layer = 1
 collision_mask = 0
 
-[node name="Poly1" type="Polygon2D" parent="WorldGeometry/VoidCrystals"]
-color = Color(0, 0.9, 1, 1)
-polygon = PackedVector2Array(1000, 400, 1100, 400, 1100, 420, 1000, 420)
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/Ground2"]
+shape = SubResource("RectangleShape2D_ground2")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WorldGeometry/VoidCrystals"]
-polygon = PackedVector2Array(1000, 400, 1100, 400, 1100, 420, 1000, 420)
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground2"]
+color = Color(0.14, 0.11, 0.1, 1)
+polygon = PackedVector2Array(-200, -20, 200, -20, 200, 20, -200, 20)
+
+[node name="MossEdge" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground2"]
+color = Color(0.28, 0.35, 0.24, 1)
+polygon = PackedVector2Array(-200, -20, 200, -20, 200, -16, -200, -16)
+
+[node name="ThornPit2" type="Area2D" parent="WorldGeometry/NeutralTerrain" groups=["hazards"]]
+position = Vector2(1500, 480)
+collision_layer = 0
+collision_mask = 1
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/ThornPit2"]
+shape = SubResource("RectangleShape2D_thorns_large")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/ThornPit2"]
+color = Color(0.9, 0.08, 0.18, 0.95)
+polygon = PackedVector2Array(-250, 10, -230, -15, -210, 10, -190, -15, -170, 10, -150, -15, -130, 10, -110, -15, -90, 10, -70, -15, -50, 10, -30, -15, -10, 10, 10, -15, 30, 10, 50, -15, 70, 10, 90, -15, 110, 10, 130, -15, 150, 10, 170, -15, 190, 10, 210, -15, 230, 10, 250, 10)
+
+[node name="Ground3" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(1950, 440)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/Ground3"]
+shape = SubResource("RectangleShape2D_ground3")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground3"]
+color = Color(0.14, 0.11, 0.1, 1)
+polygon = PackedVector2Array(-175, -20, 175, -20, 175, 20, -175, 20)
+
+[node name="WallSpine1" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(2150, 310)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/WallSpine1"]
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/WallSpine1"]
+color = Color(0.12, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-15, -130, 15, -130, 15, 130, -15, 130)
+
+[node name="ThornPit3" type="Area2D" parent="WorldGeometry/NeutralTerrain" groups=["hazards"]]
+position = Vector2(2600, 480)
+collision_layer = 0
+collision_mask = 1
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/ThornPit3"]
+shape = SubResource("RectangleShape2D_thorns_large")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/ThornPit3"]
+color = Color(0.9, 0.08, 0.18, 0.95)
+polygon = PackedVector2Array(-250, 10, -230, -15, -210, 10, -190, -15, -170, 10, -150, -15, -130, 10, -110, -15, -90, 10, -70, -15, -50, 10, -30, -15, -10, 10, 10, -15, 30, 10, 50, -15, 70, 10, 90, -15, 110, 10, 130, -15, 150, 10, 170, -15, 190, 10, 210, -15, 230, 10, 250, 10)
+
+[node name="Ground4" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(3050, 440)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/Ground4"]
+shape = SubResource("RectangleShape2D_ground4")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/Ground4"]
+color = Color(0.14, 0.11, 0.1, 1)
+polygon = PackedVector2Array(-225, -20, 225, -20, 225, 20, -225, 20)
+
+[node name="WallSpine2" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(3300, 290)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/WallSpine2"]
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/WallSpine2"]
+color = Color(0.12, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-15, -130, 15, -130, 15, 130, -15, 130)
+
+[node name="SanctuaryGround" type="StaticBody2D" parent="WorldGeometry/NeutralTerrain"]
+position = Vector2(3750, 360)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/NeutralTerrain/SanctuaryGround"]
+shape = SubResource("RectangleShape2D_sanctuary")
+
+[node name="Visual" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/SanctuaryGround"]
+color = Color(0.18, 0.14, 0.11, 1)
+polygon = PackedVector2Array(-200, -20, 200, -20, 200, 20, -200, 20)
+
+[node name="GoldEdge" type="Polygon2D" parent="WorldGeometry/NeutralTerrain/SanctuaryGround"]
+color = Color(1, 0.75, 0.15, 0.8)
+polygon = PackedVector2Array(-200, -20, 200, -20, 200, -16, -200, -16)
+
+[node name="SolarPlatforms" type="Node2D" parent="WorldGeometry"]
+
+[node name="GoldRoot1" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(560, 400)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot1"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot1"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot1"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot2" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(740, 360)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot2"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot2"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot2"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot3" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(1360, 390)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot3"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot3"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot3"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot4" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(1620, 340)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot4"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot4"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot4"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot5" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(2450, 380)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot5"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot5"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot5"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot6" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(2750, 320)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot6"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot6"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot6"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="GoldRoot7" type="StaticBody2D" parent="WorldGeometry/SolarPlatforms"]
+position = Vector2(3450, 310)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/SolarPlatforms/GoldRoot7"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="Wood" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot7"]
+color = Color(0.3, 0.2, 0.1, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 40, 10, -40, 10)
+
+[node name="GoldGlow" type="Polygon2D" parent="WorldGeometry/SolarPlatforms/GoldRoot7"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonPlatforms" type="Node2D" parent="WorldGeometry"]
+modulate = Color(1, 1, 1, 0.35)
+
+[node name="CrimsonMushroom1" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(650, 380)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom1"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom1"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom1"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom2" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(830, 340)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom2"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom2"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom2"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom3" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(1490, 370)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom3"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom3"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom3"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom4" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(1750, 320)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom4"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom4"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom4"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom5" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(2600, 350)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom5"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom5"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom5"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom6" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(2900, 290)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom6"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom6"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom6"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
+
+[node name="CrimsonMushroom7" type="StaticBody2D" parent="WorldGeometry/CrimsonPlatforms"]
+position = Vector2(3570, 270)
+collision_layer = 0
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom7"]
+shape = SubResource("RectangleShape2D_platform")
+
+[node name="ObsidianBase" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom7"]
+color = Color(0.08, 0.04, 0.06, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 38, 10, -38, 10)
+
+[node name="RubyEdge" type="Polygon2D" parent="WorldGeometry/CrimsonPlatforms/CrimsonMushroom7"]
+color = Color(1, 0.12, 0.25, 1)
+polygon = PackedVector2Array(-45, -10, 45, -10, 43, -6, -43, -6)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(180, 410)
+position = Vector2(120, 400)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position_smoothing_enabled = true
-position_smoothing_speed = 7.0
+position_smoothing_speed = 8.0
 limit_left = 0
 limit_top = 0
-limit_right = 4000
-limit_bottom = 1200
+limit_right = 4100
+limit_bottom = 800
 
 [node name="Beacon1" parent="." instance=ExtResource("4_beacon")]
-position = Vector2(280, 440)
+position = Vector2(280, 420)
+beacon_name = "THE SUNLIT CANOPY"
 
 [node name="Beacon2" parent="." instance=ExtResource("4_beacon")]
-position = Vector2(1440, 680)
+position = Vector2(1080, 420)
+beacon_name = "THE SHADOW FAULT"
+
+[node name="Beacon3" parent="." instance=ExtResource("4_beacon")]
+position = Vector2(3050, 420)
+beacon_name = "CRIMSON CAVERNS"
 
 [node name="Lantern1" parent="." instance=ExtResource("5_lantern")]
-position = Vector2(975, 340)
+position = Vector2(740, 260)
+
+[node name="Lantern2" parent="." instance=ExtResource("5_lantern")]
+position = Vector2(1620, 240)
+
+[node name="Lantern3" parent="." instance=ExtResource("5_lantern")]
+position = Vector2(2750, 220)
 
 [node name="Shard1" parent="." instance=ExtResource("6_shard")]
-position = Vector2(450, 390)
+position = Vector2(400, 370)
 
 [node name="Shard2" parent="." instance=ExtResource("6_shard")]
-position = Vector2(900, 370)
+position = Vector2(650, 330)
 
 [node name="Shard3" parent="." instance=ExtResource("6_shard")]
-position = Vector2(1050, 350)
+position = Vector2(830, 290)
+
+[node name="Shard4" parent="." instance=ExtResource("6_shard")]
+position = Vector2(1150, 370)
+
+[node name="Shard5" parent="." instance=ExtResource("6_shard")]
+position = Vector2(1360, 340)
+
+[node name="Shard6" parent="." instance=ExtResource("6_shard")]
+position = Vector2(1490, 320)
+
+[node name="Shard7" parent="." instance=ExtResource("6_shard")]
+position = Vector2(1750, 270)
+
+[node name="Shard8" parent="." instance=ExtResource("6_shard")]
+position = Vector2(2050, 380)
+
+[node name="Shard9" parent="." instance=ExtResource("6_shard")]
+position = Vector2(2450, 330)
+
+[node name="Shard10" parent="." instance=ExtResource("6_shard")]
+position = Vector2(2600, 300)
+
+[node name="Shard11" parent="." instance=ExtResource("6_shard")]
+position = Vector2(2900, 240)
+
+[node name="Shard12" parent="." instance=ExtResource("6_shard")]
+position = Vector2(3570, 220)
 
 [node name="Whisper1" parent="." instance=ExtResource("7_whisper")]
-position = Vector2(600, 430)
-whisper_title = "WHISPER I: THE SEVERED CRADLE"
-whisper_text = "Before the desync, the sun and moon shared the exact same sky.\nA mother's lullaby in the Dawn realm echoed as birdsong in the Dusk realm.\nCross the rift, little light. Reunite the song."
+position = Vector2(460, 410)
+whisper_title = "WHISPER I: THE ECLIPSE RIFT"
+whisper_text = "Look ahead across the chasm. The ghost crimson mushrooms exist in the shadow plane.\nJump into the air with SPACE, and press Z mid-flight.\nWatch the shadow solidify beneath your feet."
+
+[node name="Whisper2" parent="." instance=ExtResource("7_whisper")]
+position = Vector2(1850, 410)
+whisper_title = "WHISPER II: THE TWIN REALMS"
+whisper_text = "Two astronomers pointed their telescopes into the dark.\nOne saw a dying star; the other saw a newborn sun.\nTogether, their light forms the pulse of Continuum-9."
+
+[node name="Whisper3" parent="." instance=ExtResource("7_whisper")]
+position = Vector2(3680, 330)
+whisper_title = "WHISPER III: THE CONTINUUM REBORN"
+whisper_text = "Step onto the Chrono-Nexus Altar ahead.\nThe golden dawn and the obsidian eclipse are one."
+
+[node name="Altar" type="Area2D" parent="." groups=["altars"]]
+position = Vector2(3850, 330)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Shape" type="CollisionShape2D" parent="Altar"]
+shape = SubResource("RectangleShape2D_altar")
+
+[node name="Pedestal" type="Polygon2D" parent="Altar"]
+color = Color(0.2, 0.15, 0.12, 1)
+polygon = PackedVector2Array(-40, 10, 40, 10, 30, -25, -30, -25)
+
+[node name="CoreGlow" type="Polygon2D" parent="Altar"]
+color = Color(1, 0.75, 0.15, 1)
+polygon = PackedVector2Array(-25, -25, 25, -25, 20, -35, -20, -35)
 
 [node name="UI" parent="." instance=ExtResource("3_ui")]

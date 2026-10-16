@@ -120,3 +120,101 @@ theme_override_colors/font_color = Color(1, 0.7, 0.1, 1)
 theme_override_font_sizes/font_size = 11
 text = "PRESS [Z] TO CLOSE"
 horizontal_alignment = 1
+
+[node name="TitlePanel" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="TitlePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="TitlePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="GameTitle" type="Label" parent="TitlePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.15, 1)
+theme_override_font_sizes/font_size = 28
+text = "PHASE COURIER"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitlePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.25, 1)
+theme_override_font_sizes/font_size = 14
+text = "WILL OF THE CONTINUUM"
+horizontal_alignment = 1
+
+[node name="StartPrompt" type="Label" parent="TitlePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "PRESS Z TO START"
+horizontal_alignment = 1
+
+[node name="ControlsGuide" type="Label" parent="TitlePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "ARROWS: MOVE  |  SPACE: JUMP / GLIDE  |  Z: CHANGE DIMENSION"
+horizontal_alignment = 1
+
+[node name="GameOverPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="GameOverPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="GameOverPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="GameOverPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.15, 0.25, 1)
+theme_override_font_sizes/font_size = 24
+text = "FRACTURE COLLAPSE"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="GameOverPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "TIME: 00:00  |  DEATHS: 0  |  SHARDS: 0/20"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="GameOverPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.15, 1)
+theme_override_font_sizes/font_size = 16
+text = "PRESS Z TO PLAY AGAIN"
+horizontal_alignment = 1

@@ -29,8 +29,8 @@ body {
   width: min(92vw, calc(80vh * 16 / 9));
   height: min(80vh, calc(92vw * 9 / 16));
   aspect-ratio: 16 / 9;
-  box-shadow: 0 0 50px rgba(0, 229, 255, 0.15), 0 0 80px rgba(255, 179, 0, 0.1);
-  border: 2px solid #222b38;
+  box-shadow: 0 0 50px rgba(255, 30, 66, 0.22), 0 0 80px rgba(255, 179, 0, 0.15);
+  border: 2px solid #2d1017;
   border-radius: 6px;
   background: #000;
   overflow: hidden;
@@ -79,11 +79,11 @@ canvas {
 }
 
 .key-badge {
-  background: #1e2633;
-  color: #00e5ff;
+  background: #1a080d;
+  color: #ff1e42;
   padding: 2px 7px;
   border-radius: 3px;
-  border: 1px solid #37474f;
+  border: 1px solid #4a1520;
   font-weight: bold;
 }
 
