@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase Courier: Will of the Continuum</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    <canvas id="gameCanvas" width="640" height="360"></canvas>
+    <div class="crt-overlay"></div>
+  </div>
+
+  <div id="controls-bar">
+    <div><span class="key-badge">ARROWS</span> RUN / AIM</div>
+    <div><span class="key-badge">SPACE</span> JUMP / DOUBLE JUMP / GLIDE (HOLD)</div>
+    <div><span class="key-badge gold">Z</span> PHASE AIR-DASH</div>
+    <div><span class="key-badge">R</span> RETRY FROM BEACON</div>
+    <div><span class="key-badge">M</span> MUTE</div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

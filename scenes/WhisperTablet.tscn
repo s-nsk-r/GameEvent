@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://df4q7p2k1n8y"]
+
+[ext_resource type="Script" path="res://scripts/whisper_tablet.gd" id="1_whisper"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_whisper"]
+size = Vector2(24, 24)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.1, 0.8, 1, 0.5, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="WhisperTablet" type="Area2D" groups=["whispers"]]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_whisper")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_whisper")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(0, 0.9, 1, 1)
+energy = 1.0
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 1.2
+
+[node name="StoneTablet" type="Polygon2D" parent="."]
+color = Color(0.12, 0.16, 0.22, 1)
+polygon = PackedVector2Array(-8, -10, 8, -10, 8, 10, -8, 10)
+
+[node name="GlowingGlyph" type="Polygon2D" parent="."]
+color = Color(0, 0.9, 1, 0.9)
+polygon = PackedVector2Array(-4, -6, 4, -6, 0, 0, -4, 4, 4, 4)

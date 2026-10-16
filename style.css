@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: #08090d;
+  color: #e0e6ed;
+  font-family: 'Share Tech Mono', monospace;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(92vw, calc(80vh * 16 / 9));
+  height: min(80vh, calc(92vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 50px rgba(0, 229, 255, 0.15), 0 0 80px rgba(255, 179, 0, 0.1);
+  border: 2px solid #222b38;
+  border-radius: 6px;
+  background: #000;
+  overflow: hidden;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-color: #0b0d13;
+}
+
+/* CRT Scanline & Vignette Overlay */
+.crt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 3px 100%;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}
+
+/* Bottom Controls Bar */
+#controls-bar {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #78909c;
+  text-transform: uppercase;
+}
+
+.key-badge {
+  background: #1e2633;
+  color: #00e5ff;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid #37474f;
+  font-weight: bold;
+}
+
+.key-badge.gold {
+  color: #ffb300;
+  border-color: #ffb300;
+}

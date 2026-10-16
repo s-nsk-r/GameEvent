@@ -1,0 +1,111 @@
+[gd_scene load_steps=10 format=3 uid="uid://main7b8v2m9k"]
+
+[ext_resource type="Script" path="res://scripts/world.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/UI.tscn" id="3_ui"]
+[ext_resource type="PackedScene" path="res://scenes/Beacon.tscn" id="4_beacon"]
+[ext_resource type="PackedScene" path="res://scenes/Lantern.tscn" id="5_lantern"]
+[ext_resource type="PackedScene" path="res://scenes/Shard.tscn" id="6_shard"]
+[ext_resource type="PackedScene" path="res://scenes/WhisperTablet.tscn" id="7_whisper"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground1"]
+size = Vector2(800, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hazard1"]
+size = Vector2(200, 30)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.22, 0.18, 0.14, 1)
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="FarLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.15, 0.15)
+motion_mirroring = Vector2(1280, 0)
+
+[node name="FarMountains" type="Polygon2D" parent="ParallaxBackground/FarLayer"]
+color = Color(0.08, 0.12, 0.18, 1)
+polygon = PackedVector2Array(0, 360, 200, 180, 400, 260, 600, 140, 800, 240, 1000, 160, 1280, 360)
+
+[node name="MidLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.4, 0.4)
+motion_mirroring = Vector2(1280, 0)
+
+[node name="MidTrees" type="Polygon2D" parent="ParallaxBackground/MidLayer"]
+color = Color(0.12, 0.18, 0.25, 0.8)
+polygon = PackedVector2Array(0, 360, 150, 240, 300, 310, 450, 210, 650, 300, 850, 220, 1050, 290, 1280, 360)
+
+[node name="WorldGeometry" type="Node2D" parent="."]
+
+[node name="NeutralGround" type="StaticBody2D" parent="WorldGeometry"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape1" type="CollisionShape2D" parent="WorldGeometry/NeutralGround"]
+position = Vector2(400, 460)
+shape = SubResource("RectangleShape2D_ground1")
+
+[node name="Poly1" type="Polygon2D" parent="WorldGeometry/NeutralGround"]
+color = Color(0.14, 0.18, 0.24, 1)
+polygon = PackedVector2Array(0, 440, 800, 440, 800, 480, 0, 480)
+
+[node name="SolarCrystals" type="StaticBody2D" parent="WorldGeometry"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Poly1" type="Polygon2D" parent="WorldGeometry/SolarCrystals"]
+color = Color(1, 0.7, 0.1, 1)
+polygon = PackedVector2Array(850, 420, 950, 420, 950, 440, 850, 440)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WorldGeometry/SolarCrystals"]
+polygon = PackedVector2Array(850, 420, 950, 420, 950, 440, 850, 440)
+
+[node name="VoidCrystals" type="StaticBody2D" parent="WorldGeometry"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Poly1" type="Polygon2D" parent="WorldGeometry/VoidCrystals"]
+color = Color(0, 0.9, 1, 1)
+polygon = PackedVector2Array(1000, 400, 1100, 400, 1100, 420, 1000, 420)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WorldGeometry/VoidCrystals"]
+polygon = PackedVector2Array(1000, 400, 1100, 400, 1100, 420, 1000, 420)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(180, 410)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position_smoothing_enabled = true
+position_smoothing_speed = 7.0
+limit_left = 0
+limit_top = 0
+limit_right = 4000
+limit_bottom = 1200
+
+[node name="Beacon1" parent="." instance=ExtResource("4_beacon")]
+position = Vector2(280, 440)
+
+[node name="Beacon2" parent="." instance=ExtResource("4_beacon")]
+position = Vector2(1440, 680)
+
+[node name="Lantern1" parent="." instance=ExtResource("5_lantern")]
+position = Vector2(975, 340)
+
+[node name="Shard1" parent="." instance=ExtResource("6_shard")]
+position = Vector2(450, 390)
+
+[node name="Shard2" parent="." instance=ExtResource("6_shard")]
+position = Vector2(900, 370)
+
+[node name="Shard3" parent="." instance=ExtResource("6_shard")]
+position = Vector2(1050, 350)
+
+[node name="Whisper1" parent="." instance=ExtResource("7_whisper")]
+position = Vector2(600, 430)
+whisper_title = "WHISPER I: THE SEVERED CRADLE"
+whisper_text = "Before the desync, the sun and moon shared the exact same sky.\nA mother's lullaby in the Dawn realm echoed as birdsong in the Dusk realm.\nCross the rift, little light. Reunite the song."
+
+[node name="UI" parent="." instance=ExtResource("3_ui")]

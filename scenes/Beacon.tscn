@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://c7k2p8m3x41v"]
+
+[ext_resource type="Script" path="res://scripts/beacon.gd" id="1_beacon"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_beacon"]
+size = Vector2(36, 40)
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.8, 0.3, 0.5, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="Beacon" type="Area2D" groups=["beacons"]]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_beacon")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_beacon")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+position = Vector2(0, -32)
+color = Color(0.7, 0.8, 0.9, 0.6)
+energy = 0.8
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 1.4
+
+[node name="ObeliskVisual" type="Polygon2D" parent="."]
+color = Color(0.18, 0.23, 0.3, 1)
+polygon = PackedVector2Array(-8, 0, 8, 0, 6, -30, -6, -30)
+
+[node name="CrystalTop" type="Polygon2D" parent="."]
+color = Color(0.3, 0.7, 0.9, 1)
+polygon = PackedVector2Array(0, -40, 5, -32, 0, -26, -5, -32)

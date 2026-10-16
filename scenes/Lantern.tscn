@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://b3v1j6q8n92p"]
+
+[ext_resource type="Script" path="res://scripts/lantern.gd" id="1_lantern"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lantern"]
+radius = 16.0
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.2, 0.9, 1, 0.6, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="Lantern" type="Area2D" groups=["lanterns"]]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_lantern")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_lantern")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(0.1, 0.85, 1, 1)
+energy = 1.4
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 1.6
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.2, 0.9, 1, 0.9)
+polygon = PackedVector2Array(0, -10, 8, -5, 8, 5, 0, 10, -8, 5, -8, -5)
+
+[node name="Core" type="Polygon2D" parent="Visual"]
+color = Color(1, 1, 1, 1)
+polygon = PackedVector2Array(0, -5, 4, 0, 0, 5, -4, 0)

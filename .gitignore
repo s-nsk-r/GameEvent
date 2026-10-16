@@ -1,0 +1,13 @@
+# Godot 4 specifics
+.godot/
+*.translation
+export_presets.cfg
+
+# OS generated
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary / scratch
+*.tmp
+*.log
