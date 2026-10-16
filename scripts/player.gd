@@ -3,7 +3,7 @@ extends CharacterBody2D
 signal dimension_swapped(new_dimension: String)
 signal player_died()
 
-# Movement Parameters (Ori-Tuned)
+# Movement Parameters (Ori-Tuned, AGENTS.md Compliant)
 @export var speed: float = 190.0
 @export var acceleration: float = 1200.0
 @export var friction: float = 1400.0
@@ -12,7 +12,7 @@ signal player_died()
 @export var gravity: float = 950.0
 @export var max_fall_speed: float = 400.0
 
-# Feather Float (Glide)
+# Feather Float (Glide with Up Arrow held)
 @export var float_gravity: float = 160.0
 @export var float_fall_speed: float = 85.0
 
@@ -20,9 +20,14 @@ signal player_died()
 @export var wall_slide_speed: float = 80.0
 @export var wall_jump_velocity: Vector2 = Vector2(240.0, -320.0)
 
-# Biphase Air-Dash (Z)
+# Biphase Air-Dash (Action Z - Primary Action)
 @export var dash_speed: float = 520.0
 @export var dash_duration: float = 0.18
+
+# Dimension Phase (Action Space - Secondary Action)
+# Rule 1: "Space must never be needed more than about once every 2 seconds, and never needs to be held for long"
+var phase_cooldown: float = 0.0
+var max_phase_cooldown: float = 2.0
 
 # State Variables
 var dimension: String = "SOLAR" # "SOLAR" or "VOID"
@@ -51,23 +56,31 @@ func _physics_process(delta: float) -> void:
 		return
 
 	# Timers
+	if phase_cooldown > 0.0:
+		phase_cooldown = max(0.0, phase_cooldown - delta)
+
 	if is_on_floor():
-		coyote_time = 0.1
+		coyote_time = 0.12 # Generous coyote time
 		jumps_left = 2
 		can_dash = true
 	else:
 		coyote_time = max(0.0, coyote_time - delta)
 
-	if Input.is_action_just_pressed("jump"):
-		jump_buffer = 0.1
+	# Jump Buffer on Up Arrow
+	if Input.is_action_just_pressed("jump_up"):
+		jump_buffer = 0.12
 	else:
 		jump_buffer = max(0.0, jump_buffer - delta)
 
 	if wall_lockout > 0.0:
 		wall_lockout = max(0.0, wall_lockout - delta)
 
-	# Handle Dash
-	if Input.is_action_just_pressed("phase_dash") and can_dash and not is_dashing:
+	# Secondary Action: Dimension Phase on Space (rate-limited to 2s per Rule 1)
+	if Input.is_action_just_pressed("phase_space") and phase_cooldown <= 0.0:
+		trigger_dimension_phase()
+
+	# Primary Action: Air-Dash on Z
+	if Input.is_action_just_pressed("action_z") and can_dash and not is_dashing:
 		start_phase_dash()
 
 	if is_dashing:
@@ -77,17 +90,22 @@ func _physics_process(delta: float) -> void:
 		process_wall_mechanics(delta)
 		process_jumping(delta)
 
-	# Squash & Stretch smooth recovery
+	# Squash & Stretch recovery
 	visual_root.scale = visual_root.scale.lerp(Vector2.ONE, 12.0 * delta)
 
 	move_and_slide()
+
+func trigger_dimension_phase() -> void:
+	phase_cooldown = max_phase_cooldown
+	dimension = "VOID" if dimension == "SOLAR" else "SOLAR"
+	update_dimension_visuals()
+	dimension_swapped.emit(dimension)
 
 func start_phase_dash() -> void:
 	is_dashing = true
 	can_dash = false
 	dash_timer = dash_duration
 
-	# Calculate dash direction from input or facing
 	var input_dir = Vector2(
 		Input.get_axis("move_left", "move_right"),
 		Input.get_axis("move_up", "move_down")
@@ -99,14 +117,7 @@ func start_phase_dash() -> void:
 		dash_direction = Vector2(facing_direction, 0.0)
 
 	velocity = dash_direction * dash_speed
-
-	# Swap dimension on dash!
-	dimension = "VOID" if dimension == "SOLAR" else "SOLAR"
-	update_dimension_visuals()
-	dimension_swapped.emit(dimension)
-
-	# Squash & stretch for dash
-	visual_root.scale = Vector2(1.6, 0.5)
+	visual_root.scale = Vector2(1.5, 0.6)
 
 func process_dash(delta: float) -> void:
 	dash_timer -= delta
@@ -129,9 +140,9 @@ func process_movement(delta: float) -> void:
 		if wall_lockout <= 0.0:
 			velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	# Gravity and Feather Glide
+	# Gravity and Feather Glide with Up Arrow
 	var current_gravity = gravity
-	if not is_on_floor() and Input.is_action_pressed("jump") and velocity.y > 0.0:
+	if not is_on_floor() and Input.is_action_pressed("jump_up") and velocity.y > 0.0:
 		current_gravity = float_gravity
 		velocity.y = min(velocity.y, float_fall_speed)
 
@@ -142,7 +153,6 @@ func process_wall_mechanics(_delta: float) -> void:
 		can_dash = true
 		jumps_left = 2
 
-		# Wall slide descent damping
 		if velocity.y > wall_slide_speed:
 			velocity.y = wall_slide_speed
 
@@ -166,14 +176,13 @@ func process_jumping(_delta: float) -> void:
 			facing_direction = sign(wall_normal.x)
 			visual_root.scale = Vector2(0.75, 1.35)
 		elif jumps_left > 0:
-			# Double Jump (Acrobatic Flip)
+			# Double Jump
 			velocity.y = double_jump_velocity
 			jump_buffer = 0.0
 			jumps_left = 0
 			visual_root.scale = Vector2(1.3, 0.7)
 
-	# Variable Jump Cut (Release early for short hop)
-	if Input.is_action_just_released("jump") and velocity.y < -50.0:
+	if Input.is_action_just_released("jump_up") and velocity.y < -50.0:
 		velocity.y *= 0.5
 
 func refresh_abilities() -> void:
@@ -206,10 +215,10 @@ func update_dimension_visuals() -> void:
 	if light == null:
 		return
 	if dimension == "SOLAR":
-		light.color = Color(1.0, 0.7, 0.1, 0.9) # Amber Gold
+		light.color = Color(1.0, 0.7, 0.1, 0.9)
 		if trail_particles:
 			trail_particles.color = Color(1.0, 0.75, 0.1, 0.8)
 	else:
-		light.color = Color(0.0, 0.9, 1.0, 0.9) # Cyan
+		light.color = Color(0.0, 0.9, 1.0, 0.9)
 		if trail_particles:
 			trail_particles.color = Color(0.0, 0.9, 1.0, 0.8)

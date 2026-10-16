@@ -26,7 +26,7 @@ func _process(delta: float) -> void:
 		timer_label.text = "%02d:%02d.%02d | 💀 %d" % [mins, secs, ms, deaths]
 
 func _unhandled_input(event: InputEvent) -> void:
-	if is_dialog_open and event.is_action_pressed("jump"):
+	if is_dialog_open and event.is_action_pressed("action_z"):
 		close_dialog()
 
 func update_region(region_name: String) -> void:

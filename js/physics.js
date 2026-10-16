@@ -1,55 +1,62 @@
-// Phase Courier - Ori-Inspired Fluid Physics Engine
-// Features: Variable Jump, Double Jump, Feather Float, Biphase Air-Dash, Wall Latch & Leap, and Squash & Stretch.
+// Phase Courier - Physics & Player Engine (AGENTS.md Compliant)
+// Forgiving, readable mechanics: generous hitboxes, 1+ second reaction windows, and non-punishing controls.
 
 class Player {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.w = 14;
-    this.h = 18;
+    this.w = 18; // Generous player size (easily visible from 2 meters)
+    this.h = 24;
 
     this.vx = 0;
     this.vy = 0;
 
-    // Movement tuning
-    this.runSpeed = 3.2;
-    this.accel = 0.52;
-    this.decel = 0.7;
-    this.gravity = 0.28;
-    this.maxFallSpeed = 6.0;
-    this.floatFallSpeed = 1.15; // Feather float speed
-    this.jumpForce = -5.8;
-    this.doubleJumpForce = -5.4;
+    // Moderate, forgiving movement tuning (Rule 3)
+    this.runSpeed = 2.8;
+    this.accel = 0.45;
+    this.decel = 0.55;
+    this.gravity = 0.24;
+    this.maxFallSpeed = 4.8;
+    this.floatFallSpeed = 1.2;
+    this.jumpForce = -5.5;
+    this.doubleJumpForce = -5.0;
 
-    // Air Dash (Ori-style Z Dash)
+    // Dimension Phase (Space - Secondary Action)
+    // Rule 1: "Space must never be needed more than about once every 2 seconds, and never needs to be held for long"
+    this.dimension = 'SOLAR'; // 'SOLAR' or 'VOID'
+    this.phaseCooldown = 0;
+    this.maxPhaseCooldown = 120; // 2.0 seconds at 60fps
+
+    // Air-Dash (Z - Primary Action)
     this.isDashing = false;
     this.dashTimer = 0;
-    this.dashDuration = 11; // frames
-    this.dashSpeed = 7.8;
+    this.dashDuration = 10;
+    this.dashSpeed = 6.2;
     this.canDash = true;
-    this.dashCooldown = 0;
 
-    // Jump tracking
+    // Jump tracking (via Up Arrow)
     this.grounded = false;
     this.coyoteTime = 0;
-    this.maxCoyote = 6;
+    this.maxCoyote = 8; // Generous coyote grace (Rule 3)
     this.jumpBuffer = 0;
-    this.maxJumpBuffer = 5;
-    this.jumpsLeft = 2; // Allows double jump
+    this.maxJumpBuffer = 7;
+    this.jumpsLeft = 2;
 
     // Wall interaction
-    this.onWall = 0; // -1: left, 1: right
-    this.wallSlideSpeed = 1.2;
+    this.onWall = 0;
+    this.wallSlideSpeed = 1.1;
     this.wallJumpLockout = 0;
 
     this.facing = 1;
-    this.dimension = 'SOLAR'; // 'SOLAR' or 'VOID'
+
+    // Forgiving Hazard Reaction (Rule 3: >= 1s warning before respawn)
+    this.hazardWarningTimer = 0;
+    this.invulnerableTimer = 0;
 
     // Squash & Stretch
     this.scaleX = 1.0;
     this.scaleY = 1.0;
 
-    // State & FX
     this.isDead = false;
     this.deathTimer = 0;
     this.trail = [];
@@ -75,49 +82,55 @@ class Player {
     this.isDashing = false;
     this.canDash = true;
     this.jumpsLeft = 2;
+    this.hazardWarningTimer = 0;
+    this.invulnerableTimer = 60; // 1s grace on respawn
     this.scaleX = 1.0;
     this.scaleY = 1.0;
     this.trail = [];
   }
 
-  phaseDash(input) {
-    if (!this.canDash || this.isDead || this.dashCooldown > 0) return;
+  triggerDimensionPhase() {
+    if (this.phaseCooldown > 0 || this.isDead) return;
+
+    this.dimension = (this.dimension === 'SOLAR') ? 'VOID' : 'SOLAR';
+    this.phaseCooldown = this.maxPhaseCooldown;
+
+    window.soundEngine.setDimension(this.dimension);
+    window.soundEngine.playPhase(this.dimension);
+
+    const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
+    window.particleSystem.addShockwave(this.x + this.w / 2, this.y + this.h / 2, color);
+    window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, color, 20, 3.5, 25);
+  }
+
+  triggerAirDash(input) {
+    if (!this.canDash || this.isDead || this.isDashing) return;
 
     this.isDashing = true;
     this.dashTimer = this.dashDuration;
     this.canDash = false;
-    this.dashCooldown = 18;
 
-    // Determine dash direction
     let dirX = this.facing;
     let dirY = 0;
-    if (input.up) dirY = -0.7;
-    if (input.down && !this.grounded) dirY = 0.7;
-    if (input.left) dirX = -1;
-    if (input.right) dirX = 1;
+    if (input.held.up) dirY = -0.6;
+    if (input.held.down && !this.grounded) dirY = 0.6;
+    if (input.held.left) dirX = -1;
+    if (input.held.right) dirX = 1;
 
-    // Normalize
     const len = Math.hypot(dirX, dirY) || 1;
     this.vx = (dirX / len) * this.dashSpeed;
-    this.vy = (dirY / len) * this.dashSpeed * 0.8;
+    this.vy = (dirY / len) * this.dashSpeed * 0.75;
 
-    // Dimension swap on dash!
-    this.dimension = (this.dimension === 'SOLAR') ? 'VOID' : 'SOLAR';
-    window.soundEngine.setDimension(this.dimension);
-    window.soundEngine.playPhase(this.dimension);
+    this.scaleX = 1.5;
+    this.scaleY = 0.6;
 
-    // Squash & stretch on dash
-    this.scaleX = 1.6;
-    this.scaleY = 0.55;
-
-    // Audio & particles
     const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
-    window.particleSystem.addShockwave(this.x + this.w / 2, this.y + this.h / 2, color);
-    window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, color, 20, 4, 25);
+    window.soundEngine.playJump();
+    window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, color, 14, 3, 20);
   }
 
   isTileSolid(tile) {
-    if (tile === 1) return true; // Organic terrain
+    if (tile === 1) return true; // Universal stone/wood
     if (this.dimension === 'SOLAR' && tile === 2) return true; // Gold solid in Solar
     if (this.dimension === 'VOID' && tile === 3) return true;   // Cyan solid in Void
     return false;
@@ -125,8 +138,8 @@ class Player {
 
   isTileHazard(tile) {
     if (tile === 4) return true; // Thorns
-    if (this.dimension === 'SOLAR' && tile === 3) return true; // Cyan crystals kill in Solar
-    if (this.dimension === 'VOID' && tile === 2) return true;  // Gold crystals kill in Void
+    if (this.dimension === 'SOLAR' && tile === 3) return true; // Cyan crystals dangerous in Solar
+    if (this.dimension === 'VOID' && tile === 2) return true;  // Gold crystals dangerous in Void
     return false;
   }
 
@@ -146,11 +159,11 @@ class Player {
   }
 
   checkHazardIntersection(world) {
-    // Forgiving hitbox for hazards
-    const hx = this.x + 3;
-    const hy = this.y + 3;
-    const hw = this.w - 6;
-    const hh = this.h - 6;
+    // Generous, forgiving hitbox (Rule 3)
+    const hx = this.x + 4;
+    const hy = this.y + 4;
+    const hw = this.w - 8;
+    const hh = this.h - 8;
 
     const leftCol = Math.floor(hx / world.tileSize);
     const rightCol = Math.floor((hx + hw) / world.tileSize);
@@ -166,50 +179,41 @@ class Player {
     return false;
   }
 
-  checkSprings(world) {
-    const cx = this.x + this.w / 2;
-    const cy = this.y + this.h;
-    const col = Math.floor(cx / world.tileSize);
-    const row = Math.floor(cy / world.tileSize);
-    const tile = world.getTile(col, row);
-
-    if ((tile === 5 && this.dimension === 'SOLAR') || (tile === 6 && this.dimension === 'VOID')) {
-      this.vy = -8.6;
-      this.grounded = false;
-      this.canDash = true;
-      this.jumpsLeft = 2;
-      this.scaleX = 0.6;
-      this.scaleY = 1.5;
-      window.soundEngine.playSpring();
-      const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
-      window.particleSystem.emit(cx, cy, color, 18, 5, 25, 3, -0.08);
-    }
-  }
-
   checkLanterns(world) {
     const cx = this.x + this.w / 2;
     const cy = this.y + this.h / 2;
 
     for (let lantern of world.lanterns) {
       const dist = Math.hypot(cx - lantern.x, cy - lantern.y);
-      if (dist < lantern.radius + 12 && lantern.timer <= 0) {
-        // Reset abilities & propel player
+      if (dist < lantern.radius + 16 && lantern.timer <= 0) {
         this.canDash = true;
         this.jumpsLeft = 2;
-        lantern.timer = 60; // cooldown
+        lantern.timer = 50;
         window.soundEngine.playSpring();
         const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
         window.particleSystem.addShockwave(lantern.x, lantern.y, color);
-        window.particleSystem.emit(lantern.x, lantern.y, color, 15, 3.5, 20);
       }
       if (lantern.timer > 0) lantern.timer--;
     }
   }
 
+  triggerHazardWarning() {
+    if (this.invulnerableTimer > 0) return;
+
+    // Rule 3: Forgiving reaction window. Bounce player upward and warn for 1 second
+    this.hazardWarningTimer = 65; // ~1.1 seconds warning
+    this.invulnerableTimer = 90;
+    this.vy = -4.0; // gentle bounce back to safety
+    this.vx = -this.facing * 2.0;
+
+    window.soundEngine.playDeath();
+    window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, '#ff1744', 16, 2.5, 30);
+  }
+
   kill() {
     if (this.isDead) return;
     this.isDead = true;
-    this.deathTimer = 28;
+    this.deathTimer = 25;
     window.soundEngine.playDeath();
     const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
     window.particleSystem.emitDeathExplosion(this.x + this.w / 2, this.y + this.h / 2, color);
@@ -218,18 +222,31 @@ class Player {
   update(input, world) {
     if (this.isDead) {
       this.deathTimer--;
-      return this.deathTimer <= 0; // returns true when ready to respawn
+      return this.deathTimer <= 0;
     }
 
-    if (this.dashCooldown > 0) this.dashCooldown--;
+    // Cooldown timers
+    if (this.phaseCooldown > 0) this.phaseCooldown--;
+    if (this.invulnerableTimer > 0) this.invulnerableTimer--;
+    if (this.hazardWarningTimer > 0) this.hazardWarningTimer--;
 
-    // 1. Dash State Handling
+    // Secondary Action: Dimension Phase on Space (Fresh press, rate-limited)
+    if (input.justPressed.space) {
+      this.triggerDimensionPhase();
+    }
+
+    // Primary Action: Air-Dash on Z (Fresh press)
+    if (input.justPressed.z) {
+      this.triggerAirDash(input);
+    }
+
+    // 1. Dash Execution
     if (this.isDashing) {
       this.dashTimer--;
       if (this.dashTimer <= 0) {
         this.isDashing = false;
-        this.vx *= 0.5;
-        this.vy *= 0.5;
+        this.vx *= 0.4;
+        this.vy *= 0.4;
       }
     } else {
       // 2. Timers & Buffers
@@ -241,7 +258,8 @@ class Player {
         this.coyoteTime--;
       }
 
-      if (input.jumpPressed) {
+      // Jump input via Up Arrow
+      if (input.justPressed.up) {
         this.jumpBuffer = this.maxJumpBuffer;
       } else if (this.jumpBuffer > 0) {
         this.jumpBuffer--;
@@ -249,10 +267,10 @@ class Player {
 
       if (this.wallJumpLockout > 0) this.wallJumpLockout--;
 
-      // 3. Horizontal Movement
+      // 3. Continuous Horizontal Movement on Held Arrow Keys (Rule 2)
       let moveDir = 0;
-      if (input.left) moveDir -= 1;
-      if (input.right) moveDir += 1;
+      if (input.held.left) moveDir -= 1;
+      if (input.held.right) moveDir += 1;
 
       if (moveDir !== 0) {
         this.facing = moveDir;
@@ -263,6 +281,7 @@ class Player {
           }
         }
       } else {
+        // Releasing keys stops smoothly (Rule 2: never causes instant loss)
         if (this.wallJumpLockout === 0) {
           if (Math.abs(this.vx) > this.decel) {
             this.vx -= Math.sign(this.vx) * this.decel;
@@ -278,9 +297,7 @@ class Player {
       const touchingRight = this.checkSolidIntersection(this.x + 1, this.y, world);
 
       if (!this.grounded && (touchingLeft || touchingRight)) {
-        if (touchingLeft) this.onWall = -1;
-        if (touchingRight) this.onWall = 1;
-
+        this.onWall = touchingLeft ? -1 : 1;
         this.canDash = true;
         this.jumpsLeft = 2;
 
@@ -295,24 +312,17 @@ class Player {
 
       // 5. Gravity & Feather Float
       let currentGravity = this.gravity;
-      // If holding space while falling, activate Feather Glide!
-      if (!this.grounded && input.jumpHold && this.vy > 0) {
+      if (!this.grounded && input.held.up && this.vy > 0) {
         if (this.vy > this.floatFallSpeed) {
           this.vy = this.floatFallSpeed;
         }
-        currentGravity = 0.05;
-
-        // Emit gentle feather drift motes
-        if (Math.random() > 0.4) {
-          const color = (this.dimension === 'SOLAR') ? '#ffe082' : '#80d8ff';
-          window.particleSystem.emit(this.x + this.w / 2, this.y + this.h - 2, color, 1, 0.8, 20, 2, 0.02);
-        }
+        currentGravity = 0.06;
       }
 
       this.vy += currentGravity;
       if (this.vy > this.maxFallSpeed) this.vy = this.maxFallSpeed;
 
-      // 6. Jumping (Variable + Double Jump + Wall Jump)
+      // 6. Jumping with Up Arrow
       if (this.jumpBuffer > 0) {
         if (this.coyoteTime > 0) {
           // Ground Jump
@@ -329,17 +339,15 @@ class Player {
         } else if (this.onWall !== 0) {
           // Wall Leap
           this.vy = this.jumpForce * 0.95;
-          this.vx = -this.onWall * (this.runSpeed * 1.3);
-          this.wallJumpLockout = 8;
+          this.vx = -this.onWall * (this.runSpeed * 1.25);
+          this.wallJumpLockout = 9;
           this.jumpBuffer = 0;
           this.jumpsLeft = 1;
           this.scaleX = 0.75;
           this.scaleY = 1.3;
           window.soundEngine.playWallJump();
-          const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
-          window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, color, 8, 3, 15);
         } else if (this.jumpsLeft > 0) {
-          // Double Jump (Ori flip)
+          // Double Jump
           this.vy = this.doubleJumpForce;
           this.jumpBuffer = 0;
           this.jumpsLeft = 0;
@@ -348,17 +356,16 @@ class Player {
           window.soundEngine.playWallJump();
           const color = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
           window.particleSystem.addShockwave(this.x + this.w / 2, this.y + this.h / 2, color);
-          window.particleSystem.emit(this.x + this.w / 2, this.y + this.h / 2, color, 12, 3, 20);
         }
       }
 
-      // Variable Jump Cut
-      if (!input.jumpHold && this.vy < -1.5) {
+      // Variable jump height: releasing Up early dampens ascent
+      if (!input.held.up && this.vy < -1.5) {
         this.vy *= 0.52;
       }
     }
 
-    // 7. Resolve Horizontal Collisions
+    // 7. Apply Horizontal Velocity
     this.x += this.vx;
     if (this.vx > 0) {
       if (this.checkSolidIntersection(this.x, this.y, world)) {
@@ -372,7 +379,7 @@ class Player {
       }
     }
 
-    // 8. Resolve Vertical Collisions
+    // 8. Apply Vertical Velocity
     this.y += this.vy;
     const wasGrounded = this.grounded;
     this.grounded = false;
@@ -383,7 +390,6 @@ class Player {
         this.vy = 0;
         this.grounded = true;
 
-        // Landing squash
         if (!wasGrounded) {
           this.scaleX = 1.35;
           this.scaleY = 0.7;
@@ -398,37 +404,40 @@ class Player {
       }
     }
 
-    // 9. Springs and Lanterns
-    this.checkSprings(world);
+    // 9. Lanterns check
     this.checkLanterns(world);
 
-    // 10. Check Hazards (Only if not dashing or if hitting universal spikes)
+    // 10. Forgiving Hazard Check (Rule 3)
     if (this.checkHazardIntersection(world)) {
-      this.kill();
-      return false;
+      if (this.hazardWarningTimer <= 0 && this.invulnerableTimer <= 0) {
+        this.triggerHazardWarning();
+      } else if (this.hazardWarningTimer > 0 && this.invulnerableTimer <= 0) {
+        this.kill();
+        return false;
+      }
     }
 
-    // 11. Squash & Stretch recovery lerp
+    // 11. Squash & Stretch recovery
     this.scaleX += (1.0 - this.scaleX) * 0.14;
     this.scaleY += (1.0 - this.scaleY) * 0.14;
 
-    // 12. Spirit Trail
-    if (this.isDashing || Math.abs(this.vx) > 2.0 || !this.grounded) {
+    // 12. Trail
+    if (this.isDashing || Math.abs(this.vx) > 1.8 || !this.grounded) {
       this.trail.push({
         x: this.x,
         y: this.y,
         scaleX: this.scaleX,
         scaleY: this.scaleY,
-        alpha: this.isDashing ? 0.7 : 0.35,
+        alpha: this.isDashing ? 0.75 : 0.35,
         color: (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff'
       });
-      if (this.trail.length > (this.isDashing ? 10 : 5)) this.trail.shift();
+      if (this.trail.length > 7) this.trail.shift();
     } else {
       if (this.trail.length > 0) this.trail.shift();
     }
 
     for (let t of this.trail) {
-      t.alpha -= 0.06;
+      t.alpha -= 0.05;
     }
 
     return false;
@@ -439,6 +448,15 @@ class Player {
 
     const screenX = Math.floor(this.x - renderOffset.x);
     const screenY = Math.floor(this.y - renderOffset.y);
+
+    // Hazard warning flash (Rule 3 telegraphing)
+    if (this.hazardWarningTimer > 0 && Math.floor(performance.now() * 0.015) % 2 === 0) {
+      ctx.save();
+      ctx.fillStyle = '#ff1744';
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(screenX - 2, screenY - 2, this.w + 4, this.h + 4);
+      ctx.restore();
+    }
 
     // 1. Draw Spirit Ghost Trail
     for (let t of this.trail) {
@@ -458,7 +476,7 @@ class Player {
       ctx.restore();
     }
 
-    // 2. Draw Ori-Style Spirit Courier
+    // 2. High-contrast Player (Rule 4: large and readable from 2 meters)
     const mainColor = (this.dimension === 'SOLAR') ? '#ffb300' : '#00e5ff';
     const coreColor = '#ffffff';
 
@@ -466,39 +484,28 @@ class Player {
     ctx.translate(screenX + this.w / 2, screenY + this.h / 2);
     ctx.scale(this.scaleX * this.facing, this.scaleY);
 
-    // Dynamic Spirit Aura
     ctx.shadowColor = mainColor;
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 18;
 
-    // Glowing Ethereal Body (Soft Spirit droplet)
+    // Glowing Ethereal Body
     ctx.fillStyle = mainColor;
     ctx.beginPath();
     ctx.ellipse(0, 0, this.w / 2 + 1, this.h / 2 + 1, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Pure White Inner Spirit Light
+    // High-Contrast White Core
     ctx.fillStyle = coreColor;
     ctx.shadowBlur = 6;
     ctx.beginPath();
     ctx.ellipse(0, -1, this.w / 2 - 2, this.h / 2 - 3, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Expressive Spirit Eyes
+    // Expressive Eye
     ctx.fillStyle = '#060d17';
     ctx.shadowBlur = 0;
     ctx.beginPath();
-    ctx.ellipse(3, -2, 2, 3, 0.1, 0, Math.PI * 2);
+    ctx.ellipse(3, -2, 2.5, 3.5, 0.1, 0, Math.PI * 2);
     ctx.fill();
-
-    // Floating Ribbon Tail (ripples behind)
-    const now = performance.now() * 0.01;
-    const ripple = Math.sin(now) * 2;
-    ctx.strokeStyle = mainColor;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-this.w / 2, 2);
-    ctx.quadraticCurveTo(-this.w / 2 - 8, ripple, -this.w / 2 - 14, ripple * 1.5);
-    ctx.stroke();
 
     ctx.restore();
   }
